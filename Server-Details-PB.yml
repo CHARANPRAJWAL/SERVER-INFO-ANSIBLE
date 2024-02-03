@@ -1,0 +1,69 @@
+---
+- name: Basic-Server-Details
+  hosts: host1
+  gather_facts: false
+
+  tasks:      
+# fetch listening ports
+
+    - name: Get listening ports
+      ansible.builtin.shell: |
+        echo "Server IP : " >> output.txt
+        echo ""  >> output.txt ;
+        curl ifconfig.me >> output.txt
+        echo "" >> output.txt
+        echo "--------------------------------------" >> output.txt
+        echo ""  >> output.txt ;
+        echo "Ports In Use : " >> output.txt
+        netstat -nltp | awk '{print $4, $7}' | awk -F':' '{print $2}' >> output.txt
+        echo "--------------------------------------" >> output.txt
+
+
+# fetch firewall data
+    - name: Get firewall data
+      ansible.builtin.shell:
+        cmd: |
+          echo "FIREWALL DATA :" >> output.txt ;
+          echo ""  >> output.txt ;
+          firewall-cmd --list-all | grep 'rule family' >> output.txt ;
+          echo "--------------------------------------" >> output.txt ;
+      register: firewall_data
+      changed_when: false
+
+       
+
+# Display Users 
+    - name: Display Users
+      ansible.builtin.shell:
+        cmd: |
+          echo "USERS OF THE SERVER :" >> output.txt ;
+          echo ""  >> output.txt ;
+          ls /home >> output.txt ;
+          echo "--------------------------------------" >> output.txt ;
+      register: Display_Users
+      changed_when: false
+
+
+
+# fetch Users with ROOT access
+    - name: fetch root Users
+      ansible.builtin.shell: 
+       cmd: |
+         echo "USERS WITH ROOT ACCESS :" >> output.txt ; 
+         echo ""  >> output.txt ; 
+         awk '{print $NF}' /root/.ssh/authorized_keys | cut -d "@" -f 1 >> output.txt ; 
+         echo "--------------------------------------" >> output.txt ;
+      register: Display_Users
+      changed_when: false
+
+
+        
+# transfer the output file to your local
+    - name: Copy output.txt file from server to local machine
+      ansible.builtin.fetch:
+        src: "/root/output.txt"
+        dest: "/Users/charanprajwal/Desktop/"
+        flat: yes
+
+
+

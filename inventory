@@ -1,0 +1,2 @@
+[hosts]
+host1 ansible_host=<host-ip> ansible_user=<host-user> ansible_port=<host-ssh-port>
